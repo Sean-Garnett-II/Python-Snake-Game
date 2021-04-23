@@ -22,8 +22,8 @@ class cube(object):
                          self.pos[0], spacing * self.pos[1], spacing, spacing))
 
     def move(self):
-        self.pos[0] += self.vel[0]
-        self.pos[1] += self.vel[1]
+        self.pos = (self.pos[0] + self.vel[0], self.pos[1] + self.vel[1])
+
 
 class snake(object):
     body = []
@@ -41,29 +41,32 @@ class snake(object):
 
         key = pygame.key.get_pressed()
 
-        # when a direction is pressed, log the current head position into turns{} keyed to the direction turned
         if key[pygame.K_LEFT]:
             self.turns[self.head.pos[:]] = [-1, 0]
+
         elif key[pygame.K_RIGHT]:
             self.turns[self.head.pos[:]] = [1, 0]
+
         elif key[pygame.K_UP]:
             self.turns[self.head.pos[:]] = [0, -1]
+
         elif key[pygame.K_DOWN]:
             self.turns[self.head.pos[:]] = [0, 1]
 
-        for i, o in enumerate(self.body):
+        for i, o, in enumerate(self.body):
             p = o.pos[:]
+
             if p in self.turns:
                 o.vel = self.turns[p]
                 o.move()
                 if i == len(self.body)-1:
-                    self.turns.pop(p, None)
-                else:
-                    o.move()
+                    self.turns.pop(p)
+            else:
+                o.move()
 
     def draw(self, surface):
-        for i, c in enumerate(self.body):
-            c.draw(surface)
+        for i, o in enumerate(self.body):
+            o.draw(surface)
 
 
 def drawGrid(surface, spacing):
@@ -73,7 +76,6 @@ def drawGrid(surface, spacing):
                          (0, (lines + 1) * spacing), (gridLength, (lines + 1) * spacing))
         pygame.draw.line(surface, (255, 255, 255),
                          ((lines + 1) * spacing, 0), ((lines + 1) * spacing, gridLength))
-
 
 def redrawWindow(surface):
     surface.fill((0, 0, 0))
