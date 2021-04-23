@@ -10,7 +10,6 @@ spacing = 20
 displaySurface = pygame.display.set_mode((gridLength, gridLength))
 
 
-
 class cube(object):
 
     def __init__(self, pos, vel, color=(255, 0, 0)):
@@ -31,7 +30,7 @@ class snake(object):
     turns = {}
 
     def __init__(self):
-        self.head = cube((4, 4), (1, 0))
+        self.head = cube((0, 0), (1, 0))
         self.body.append(self.head)
 
     def move(self):
@@ -72,17 +71,11 @@ class snake(object):
 
 def drawGrid(surface, spacing):
 
-    lineGuides = gridLength // spacing
-
-    dist = 0
-
-    for lines in range(lineGuides):
-        dist += spacing
+    for lines in range(gridLength // spacing):
         pygame.draw.line(surface, (255, 255, 255),
-                         (0, dist), (gridLength, dist))
+                         (0, (lines + 1) * spacing), (gridLength, (lines + 1) * spacing))
         pygame.draw.line(surface, (255, 255, 255),
-                         (dist, 0), (dist, gridLength))
-
+                         ((lines + 1) * spacing, 0), ((lines + 1) * spacing, gridLength))
 
 def redrawWindow(surface):
     surface.fill((0, 0, 0))
@@ -100,7 +93,6 @@ def main():
 
     pygame.display.set_caption('SsSsSsSsnake')
 
-
     drawGrid(displaySurface, spacing)
 
     s.draw(displaySurface)
@@ -109,7 +101,6 @@ def main():
         clock.tick(10)
         s.move()
         redrawWindow(displaySurface)
-
 
     pass
 
