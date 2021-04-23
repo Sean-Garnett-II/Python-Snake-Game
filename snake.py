@@ -12,17 +12,20 @@ displaySurface = pygame.display.set_mode((gridLength, gridLength))
 
 class cube(object):
 
-    def __init__(self, pos=(80, 80), vel=(20, 0), color=(255, 0, 0)):
-        self.pos = pos
-        self.vel = vel
+    def __init__(self, x, y, xV, yV, color=(255, 0, 0)):
+        self.x = x
+        self.y = y
+        self.xV = xV
+        self.yV = yV
         self.color = color
 
     def draw(self, surface):
-        pygame.draw.rect(surface, self.color, (self.pos[0] + 2,
-                         self.pos[1] + 2, spacing - 2, spacing - 2))
+        pygame.draw.rect(surface, self.color, (spacing * self.x,
+                         spacing * self.y, spacing, spacing))
 
     def move(self):
-        self.pos = (self.pos[0] + self.vel[0], self.pos[1] + self.vel[1])
+        self.x += self.xV
+        self.y += self.yV
 
 
 class snake(object):
@@ -30,37 +33,35 @@ class snake(object):
     turns = {}
 
     def __init__(self):
-        self.head = cube()
+        self.head = cube(4, 4, 1, 0)
         self.body.append(self.head)
 
     def move(self, keys):
 
         for key in keys:
+            pos = (self.head.x, self.head.y)
             if keys[pygame.K_LEFT]:
-                self.turns[self.head.pos[:]] = [-20, 0]
-
+                self.turns[pos] = [-1, 0]
             elif keys[pygame.K_RIGHT]:
-                self.turns[self.head.pos[:]] = [20, 0]
-
+                self.turns[pos] = [1, 0]
             elif keys[pygame.K_UP]:
-                self.turns[self.head.pos[:]] = [0, -20]
-
+                self.turns[pos] = [0, -1]
             elif keys[pygame.K_DOWN]:
-                self.turns[self.head.pos[:]] = [0, 20]
+                self.turns[pos] = [0, 1]
 
-        for i, o, in enumerate(self.body):
-            p = o.pos[:]
-
+        for i, o in enumerate(self.body):
+            p = (o.x, o.y)
             if p in self.turns:
-                o.vel = self.turns[p]
+                o.xV = self.turns[0]
+                o.yV = self.turns[1]
                 o.move()
                 if i == len(self.body)-1:
-                    self.turns.pop(p)
-                
+                    self.turns.pop(p, None)
+            
 
     def draw(self, surface):
-        for i, o in enumerate(self.body):
-            o.draw(surface)
+        for i, c in enumerate(self.body):
+            c.draw(surface)
 
 
 def drawGrid(surface, spacing):
@@ -90,7 +91,7 @@ def main():
     clock = pygame.time.Clock()
 
     pygame.init()
- 
+
     pygame.display.set_caption('SsSsSsSsnake')
 
     running = True
@@ -108,7 +109,6 @@ def main():
             keys = pygame.key.get_pressed()
             s.move(keys)
             redrawWindow(displaySurface)
-
 
     pygame.quit()
 
