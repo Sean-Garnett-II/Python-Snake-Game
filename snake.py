@@ -12,16 +12,14 @@ displaySurface = pygame.display.set_mode((gridLength, gridLength))
 
 class cube(object):
 
-    def __init__(self, x, y, xV, yV, color=(255, 0, 0)):
-        self.x = x
-        self.y = y
-        self.xV = xV
-        self.yV = yV
+    def __init__(self, pos, vel, color=(255, 0, 0)):
+        self.pos = pos
+        self.vel = vel
         self.color = color
 
     def draw(self, surface):
-        pygame.draw.rect(surface, self.color, (spacing * self.x,
-                         spacing * self.y, spacing, spacing))
+        pygame.draw.rect(surface, self.color, (spacing *
+                         self.pos[0], spacing * self.pos[1], spacing, spacing))
 
     def move(self):
         self.x += self.xV
@@ -33,21 +31,31 @@ class snake(object):
     turns = {}
 
     def __init__(self):
-        self.head = cube(4, 4, 1, 0)
+        self.head = cube((0, 0), (1, 0))
         self.body.append(self.head)
 
-    def move(self, keys):
+    def move(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return False
 
-        for key in keys:
-            pos = (self.head.x, self.head.y)
-            if keys[pygame.K_LEFT]:
-                self.turns[pos] = [-1, 0]
-            elif keys[pygame.K_RIGHT]:
-                self.turns[pos] = [1, 0]
-            elif keys[pygame.K_UP]:
-                self.turns[pos] = [0, -1]
-            elif keys[pygame.K_DOWN]:
-                self.turns[pos] = [0, 1]
+        key = pygame.key.get_pressed()
+
+        if key[pygame.K_LEFT]:
+            self.turns[self.head.pos[:]] = [-1, 0]
+
+        elif key[pygame.K_RIGHT]:
+            self.turns[self.head.pos[:]] = [1, 0]
+
+        elif key[pygame.K_UP]:
+            self.turns[self.head.pos[:]] = [0, -1]
+
+        elif key[pygame.K_DOWN]:
+            self.turns[self.head.pos[:]] = [0, 1]
+
+        for i, o, in enumerate(self.body):
+            p = o.pos[:]
 
         for i, o in enumerate(self.body):
             p = (o.x, o.y)
@@ -66,17 +74,11 @@ class snake(object):
 
 def drawGrid(surface, spacing):
 
-    lineGuides = gridLength // spacing
-
-    dist = 0
-
-    for lines in range(lineGuides):
-        dist += spacing
+    for lines in range(gridLength // spacing):
         pygame.draw.line(surface, (255, 255, 255),
-                         (0, dist), (gridLength, dist))
+                         (0, (lines + 1) * spacing), (gridLength, (lines + 1) * spacing))
         pygame.draw.line(surface, (255, 255, 255),
-                         (dist, 0), (dist, gridLength))
-
+                         ((lines + 1) * spacing, 0), ((lines + 1) * spacing, gridLength))
 
 def redrawWindow(surface):
     surface.fill((0, 0, 0))
@@ -94,23 +96,14 @@ def main():
 
     pygame.display.set_caption('SsSsSsSsnake')
 
-    running = True
-
     drawGrid(displaySurface, spacing)
 
     s.draw(displaySurface)
 
-    while running:
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            clock.tick(10)
-            keys = pygame.key.get_pressed()
-            s.move(keys)
-            redrawWindow(displaySurface)
-
-    pygame.quit()
+    while True:
+        clock.tick(10)
+        s.move()
+        redrawWindow(displaySurface)
 
     pass
 
